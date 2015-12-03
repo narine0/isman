@@ -13,4 +13,10 @@ Rectangle {
             Qt.quit();
         }
     }
+
+    Rectangle{
+        width: 40;
+        height:40;
+    }
 }
+

@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
+    //
     QtQuick2ApplicationViewer viewer;
     viewer.setMainQmlFile(QStringLiteral("qml/isman/main.qml"));
     viewer.showExpanded();
