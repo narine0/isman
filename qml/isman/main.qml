@@ -2,69 +2,65 @@ import QtQuick 2.0
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 import QtQuick.Window 2.0
+import QtQuick.Dialogs 1.1
 
-//import QtQuick.Particles 2.0
+//import QtQuick.Particles 2.0 error??
+import qt.login_check 1.0
 
 Rectangle {
-
-//ApplicationWindow{
-//Item{
-
     id: root_w;
-    width: 360;
+    width: 640;
     height: 360;
-    //title:"isman";
-
-//   property Window win;
     border.color: "#808080";
     border.width: 2;
     radius:8;
 
+
+    Login_Gui{
+        id:loginck;
+        onSig_login_result:
+        {
+            switch(result)
+            {
+            case 0 :
+                console.log("Login successfully!");
+                outwin.setHeight(720);
+                outwin.setWidth(720);
+                sceneTransition( login_win, main_w );
+                break;
+            case 1:
+                console.log("Username or password is wrong.");
+                messageDialog.text = "Username or password is wrong.";
+                messageDialog.visible = true;
+                break;
+            case 2:
+                //console.log("Try time out");
+                messageDialog.text = "Time out!";
+                messageDialog.visible = true;
+                break;
+            default:
+                messageDialog.text = "Unknown errors";
+                messageDialog.visible = true;
+                break;
+            }
+        }
+    }
+    
     Item
     {
         id: login_win;
         visible: true;
         anchors.fill: parent
+        
+//        Image
+//            {
+//                id: background
+//                anchors { top: parent.top; bottom: parent.bottom }
+//                anchors.fill: parent
+//                source: "resource/babyg.png"
+//                fillMode: Image.PreserveAspectCrop
+//            }
 
-        Rectangle{
-            id:background;
-            anchors.left: parent.left;
-            anchors.leftMargin: 4;
-            anchors.right: parent.right;
-            anchors.rightMargin:  4;
-            anchors.top:  parent.top;
-            anchors.topMargin: 4;
-            anchors.bottom:  parent.bottom;
-            anchors.bottomMargin: 4;
-
-            rotation: 90;
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#212121" }
-                GradientStop { position: 1.0; color: "#A0A0A0"; }
-            }
-        }
-
-        Text {
-            id: lab_usr
-            x: 62
-            y: 135
-            text: qsTr("user:")
-            anchors.verticalCenterOffset: -36
-            anchors.horizontalCenterOffset: -101
-            anchors.centerIn: parent
-        }
-        Text {
-            id: lab_password
-            y: 164
-            anchors.left: parent.left;
-            anchors.leftMargin: 43
-            anchors.verticalCenterOffset: -7
-            anchors.horizontalCenterOffset: -102
-            anchors.centerIn: parent
-
-            text: qsTr("password:")
-            z: 1
-        }
 
         MouseArea {
             anchors.rightMargin: 0
@@ -79,86 +75,128 @@ Rectangle {
 
         //Button style:
         Component{
-                id: btnStyle;
-                ButtonStyle {
-                    background: Rectangle {
-                        implicitWidth: 70;
-                        implicitHeight: 25;
-                        color: "#DDDDDD";
-                        border.width: control.pressed ? 2 : 1;
-                        border.color: (control.hovered || control.pressed) ? "green" : "#888888";
-                    }
+            id: btnStyle;
+            ButtonStyle {
+                background: Rectangle {
+                    implicitWidth: 70;
+                    implicitHeight: 25;
+                    color: "#DDDDDD";
+                    border.width: control.pressed ? 2 : 1;
+                    border.color: (control.hovered || control.pressed) ? "green" : "#888888";
                 }
             }
+        }
 
-        Button{
-            x: 138
-            y: 203
+
+
+        Column{
             anchors.centerIn: parent;
-            text:"log in";
-            anchors.verticalCenterOffset: 37
-            anchors.horizontalCenterOffset: 1
-            style: btnStyle;
-            onClicked:
+
+            spacing: 16;
+            Column
+            {                  
+                spacing: 2;
+                MediumText {text: "Username:" ;}                                   
+                LineInput
+                {
+                    id: usr;
+                    hint: "{usr}";
+                    focus : true;
+                    KeyNavigation.tab: password;
+                }
+            }
+            Column
             {
-                outwin.setHeight(720);
-                outwin.setWidth(720);
-                //outwin.setHeight(180);
-                //win.showMinimized();
-                //win.close();
-                //win.setWidth(180);
-                //win.setHeight(180);
-                sceneTransition( login_win, main_w );
+                spacing: 4;
+                MediumText {text: "Password:" ;}
+                LineInput
+                {
+                    id: password;
+                    hint : "password"
+                    echoMode: TextInput.Password;
+                }
+            }
+            Row
+            {
+                spacing: 16;
+                Button{
+                    text:"Login";
+                    style: btnStyle;
+                    onClicked:
+                    {
+                        login_req();
+
+                    }
+                }
+                Button{
+                    //anchors.verticalCenter: parent;
+                    text:"Cancel";
+                    style: btnStyle;
+                    onClicked: Qt.quit();
+                }
             }
         }
 
-        TextInput {
-            id: usr
-            x: 138
-            y: 133
-            width: 175
-            height: 20
-            anchors.verticalCenterOffset: -37
-            anchors.horizontalCenterOffset: 46
-            anchors.centerIn: parent
-            text: qsTr("Input usrname")
-            font.pixelSize: 12
-        }
+    }//enditem1
 
-        TextInput {
-            id: password
-            x: 138
-            y: 162
-            width: 175
-            height: 20
-            anchors.verticalCenterOffset: -8
-            anchors.horizontalCenterOffset: 46
-            anchors.centerIn: parent
-            text: qsTr("password")
-            font.pixelSize: 12
-        }
 
+
+    MessageDialog
+    {
+        id: messageDialog
+        title: "提示"
+        text: "To be or not to be!"
+        onAccepted:
+        {
+            console.log("And of course you could only agree.")
+        }
+        visible:false
+        //Component.onCompleted: visible = true
+    }
+
+    //log_in request:
+    function login_req()
+    {
+        if(usr.text =="")
+        {
+            messageDialog.text = "user name cannot be empty!";
+            messageDialog.visible = true;
+            return;
+        }
+        loginck.user_id = usr.text;
+        loginck.password = password.text;
+
+        loginck.slot_login_req();
     }
 
 
+    //show window 2
+    function sceneTransition( thisScene, nextScene )
+    {
+        thisScene.visible = false;
+        nextScene.visible = true;
+    }
 
+
+    //********************************************************************
+    //
+    //the second window:
     Item
     {
         id: main_w;
         visible: false;
         anchors.fill: parent;
 
+
+
     }
 
 
-    function sceneTransition( thisScene, nextScene )
+
+    Component.onCompleted:
     {
-        thisScene.visible = false;
+        loginck.initialise();
 
-        nextScene.visible = true;
-//            emitterTimer.thisScene = thisScene;
-//            emitterTimer.nextScene = nextScene;
-//            emitter.enabled = true;
-    }
+        }
 }
 
